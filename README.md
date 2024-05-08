@@ -40,7 +40,7 @@ This sounds rather complicated but is actually quite simple. Let us explain how 
 So, why does `RSA` work? This question could be answered if we understand how the values are picked.
 1. As I said, `p` and `q` are chosen *randomly*. There are good well-known algorithms for creating a random prime numbers (they are not trivial), but let us assume that is known. Therefore, `n = pq` simply ensures that `n` is a *composite* number but is computationally hard to factorize.
 2. The value of `phi(n)` is simply the number of elements in the multipicative group `Z*n`, and is easy for `Alice` to calculate but hard for anyone else. Since the Euler Totient function is multipicative, `phi(n) = phi(p) * phi(q)`, and since for every prime `phi(p) = p-1` we get `phi(n) = (p-1)(q-1)`. Note that an attacker that can calculate `phi(n)` can crack `RSA`; it is believed today that the problem of calculating `phi(n)` is equivalent to the problem of the factorization of `n`, and *that* is believed to be a computationally difficult problem (for a large value of `n`).
-3. As I mentioned, `e` is really constant, but it has to be coprime to `phi(n)`. In most cases it'd be `65537`, since it's a prime number it's very likely for it to be a coprime of `phi(n)`, as well as the fact that it's a power of two plus one (`65537 = 2^16+1`), so it's very efficient to use it in exponentiation. I have seen cases where `e=3`, but it's not commonly used and might actually pose security issues, which I will explain later in this blogpost.
+3. As I mentioned, `e` is really constant, but it has to be coprime to `phi(n)`. In most cases it'd be `65537`, since it's a prime number it's very likely for it to be a coprime of `phi(n)`, as well as the fact that it's a power of two plus one (`65537 = 2^16+1`), so it's very efficient to use it in exponentiation. I have seen cases where `e=3`, but it's not commonly used and might actually pose security issues, for example, for small values of `x` it's trivial to get `x` out of `x^e (mod n)`.
 4. The value of `d` can be efficiently determined using the [Extended Euclidean algorithm](https://en.wikipedia.org/wiki/Euclidean_algorithm), since `Alice` knows `phi(n)`. Again keep in mind that an attacker that can determine `phi(n)` can conclude `d` from it and therefore break the entire cipher.
 
 Why does `(x^d)^e = (x^e)^d = x (mod n)`?
@@ -53,3 +53,18 @@ To conclude, for every Group `G` with `k` elements, if `a = b (mod k)` then `x^a
 - `ed = 1 (mod k` (because that's how we chose `d`).
 - Therefore, `(x^e)^d = x^(ed) = x^1 = x`.
 
+## Why not using just RSA then?
+Why should `Alice` and `Bob` not just continue conversing over `RSA`? Because there are several disadvantages:
+1. `RSA` is computationally expansive. Raising large numbers to the power of large numbers `mod` large numbers takes non-trivial processing power.
+2. You can't use any `x` as input to `RSA` - you can only use `x` that is coprime to `n` - that is a *very large set* but not arbitrarily large.
+3. Key sizes for securing `RSA` are huge compared to `symmetric ciphers` - common `AES` (symmetric) key is around `256` bits, while modern `RSA` requires around `2048` or even `4096` bits.
+4. Unlike symmetric ciphers, that are relatively okay, `RSA` is not Quantum-resistent. This is not a Quantum computation blogpost (and I am not an expert on the matter), but using [Shor's algorithm](https://en.wikipedia.org/wiki/Shor%27s_algorithm) *assuming a Quantum computer* (which is a big assumption nowadays) is very promising for breaking `RSA` by means of factorization; on the other hand, symmetric ciphers are quite safe - the best known Quantum attack against them is [Grover's algorithm](https://en.wikipedia.org/wiki/Grover%27s_algorithm) which can be solved by just doubling the size of the (already small) symmetric key size.
+
+## Summary
+In this blogpost I've described how *basic* RSA works; in truth, there are more sophisticated versions of RSA but they still use the same fundemental principals.  
+There are many uses for RSA even today, and I wouldn't exaggarate if I said it's one of those fundemental algorithms that make the internet as we know it today, possible. It's also used extensively for digital signatures, which I plan on covering in the future.  
+I still owe a lot of future blogposts - from attacks on RSA to interesting uses, as well as random prime number generation, there's a lot to cover!
+
+Stay tuned!
+
+Jonathan Bar Or
