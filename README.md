@@ -26,7 +26,7 @@ RSA works within the multipicative [group](https://en.wikipedia.org/wiki/Group_(
 If you don't know what those are then I refer you to my previous blogposts, and specifically [modular arithmetics](https://github.com/yo-yo-yo-jbo/crypto_modular/) which we will be using a lot today.  
 Well, how does the algorithm work? Let us first describe the algorithm before explaining how it works:
 
-1. `Alice` creates two random large primes, `p` and `q` (how to create a "random" prime? I will discuss that in a later blogpost), and defines `n = p*q`.
+1. `Alice` creates two random large primes, `p` and `q` (how to create a "random" prime? I will discuss that in a later blogpost), and defines `n = p*q`. Note that "large" is a relative term, today `2048` bit values are considered "safe" (but not [Quantum resilient](https://en.wikipedia.org/wiki/Post-quantum_cryptography)).
 2. `Alice` uses a number that we'll call `e` (that is not *the* [e](https://en.wikipedia.org/wiki/E_(mathematical_constant)), remember, we are working with integers `mod n`!). In reality, `e` is really constant and "baked into" the cryptosystem (commonly `65537`, I will explain why later).
 3. `Alice` calculates a number `d` such that `d` is the multipicative inverse of `e` mod `phi(n)`, where `phi` is the [Euler Totient Function](https://en.wikipedia.org/wiki/Euler%27s_totient_function). Alice could calculate `phi(n)` directly: `phi(n) = (p-1)(q-1)`.
 4. `Alice` publishes her `public key = (e, n)` and keeps her `private key = (d, n)`, and gets rid of `p` and `q`.
@@ -35,3 +35,11 @@ Well, how does the algorithm work? Let us first describe the algorithm before ex
 7. Alice can then decrypt `Bob`'s message by raising it to the `d`-th power (`mod n`), thus getting `x` back.
 
 This sounds rather complicated but is actually quite simple. Let us explain how values are picked.
+
+## The math
+So, why does `RSA` work? This question could be answered if we understand how the values are picked.
+1. As I said, `p` and `q` are chosen *randomly*. There are good well-known algorithms for creating a random prime numbers (they are not trivial), but let us assume that is known. Therefore, `n = pq` simply ensures that `n` is a *composite* number but is computationally hard to factorize.
+2. The value of `phi(n)` is simply the number of elements in the multipicative group `Z*n`, and is easy for `Alice` to calculate but hard for anyone else. Since the Euler Totient function is multipicative, `phi(n) = phi(p) * phi(q)`, and since for every prime `phi(p) = p-1` we get `phi(n) = (p-1)(q-1)`. Note that an attacker that can calculate `phi(n)` can crack `RSA`; it is believed today that the problem of calculating `phi(n)` is equivalent to the problem of the factorization of `n`, and *that* is believed to be a computationally difficult problem (for a large value of `n`).
+3. As I mentioned, `e` is really constant, but it has to be coprime to `phi(n)`. In most cases it'd be `65537`, since it's a prime number it's very likely for it to be a coprime of `phi(n)`, as well as the fact that it's a power of two plus one (`65537 = 2^16+1`), so it's very efficient to use it in exponentiation. I have seen cases where `e=3`, but it's not commonly used and might actually pose security issues, which I will explain later in this blogpost.
+4. The value of `d` can be efficiently determined using the [Extended Euclidean algorithm](https://en.wikipedia.org/wiki/Euclidean_algorithm), since `Alice` knows `phi(n)`. Again keep in mind that an attacker that can determine `phi(n)` can conclude `d` from it and therefore break the entire cipher.
+5. 
