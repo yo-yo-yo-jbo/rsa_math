@@ -42,4 +42,9 @@ So, why does `RSA` work? This question could be answered if we understand how th
 2. The value of `phi(n)` is simply the number of elements in the multipicative group `Z*n`, and is easy for `Alice` to calculate but hard for anyone else. Since the Euler Totient function is multipicative, `phi(n) = phi(p) * phi(q)`, and since for every prime `phi(p) = p-1` we get `phi(n) = (p-1)(q-1)`. Note that an attacker that can calculate `phi(n)` can crack `RSA`; it is believed today that the problem of calculating `phi(n)` is equivalent to the problem of the factorization of `n`, and *that* is believed to be a computationally difficult problem (for a large value of `n`).
 3. As I mentioned, `e` is really constant, but it has to be coprime to `phi(n)`. In most cases it'd be `65537`, since it's a prime number it's very likely for it to be a coprime of `phi(n)`, as well as the fact that it's a power of two plus one (`65537 = 2^16+1`), so it's very efficient to use it in exponentiation. I have seen cases where `e=3`, but it's not commonly used and might actually pose security issues, which I will explain later in this blogpost.
 4. The value of `d` can be efficiently determined using the [Extended Euclidean algorithm](https://en.wikipedia.org/wiki/Euclidean_algorithm), since `Alice` knows `phi(n)`. Again keep in mind that an attacker that can determine `phi(n)` can conclude `d` from it and therefore break the entire cipher.
-5. 
+
+Why does `(x^d)^e = (x^e)^d = x (mod n)`? Well, for every Group `G` with `k` elements, if `a = b (mod k` then `x^a = x^b`. In our case:
+- `k` is really `phi(n)`.
+- `ed = 1 (mod k` (because that's how we chose `d`).
+- Therefore, `(x^e)^d = x^(ed) = x^1 = x`.
+
