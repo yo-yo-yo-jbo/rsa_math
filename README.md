@@ -43,7 +43,12 @@ So, why does `RSA` work? This question could be answered if we understand how th
 3. As I mentioned, `e` is really constant, but it has to be coprime to `phi(n)`. In most cases it'd be `65537`, since it's a prime number it's very likely for it to be a coprime of `phi(n)`, as well as the fact that it's a power of two plus one (`65537 = 2^16+1`), so it's very efficient to use it in exponentiation. I have seen cases where `e=3`, but it's not commonly used and might actually pose security issues, which I will explain later in this blogpost.
 4. The value of `d` can be efficiently determined using the [Extended Euclidean algorithm](https://en.wikipedia.org/wiki/Euclidean_algorithm), since `Alice` knows `phi(n)`. Again keep in mind that an attacker that can determine `phi(n)` can conclude `d` from it and therefore break the entire cipher.
 
-Why does `(x^d)^e = (x^e)^d = x (mod n)`? Well, for every Group `G` with `k` elements, if `a = b (mod k` then `x^a = x^b`. In our case:
+Why does `(x^d)^e = (x^e)^d = x (mod n)`?
+Well, according to [Lagrange](https://en.wikipedia.org/wiki/Lagrange%27s_theorem_(group_theory)), every the size of a `sub-Group` divides the size of the original Group. For example, the only possible sub-Groups of a Group of size `15` must be of sizes `3` or `5` (without including the trivial cases of `1` and `15`).  
+Now, let's think of some `x` that belongs to a finite Group `G`, and let's start looking at its powers: `x^0, x^1, x^2, x^3, ...`. Since this can go on forever but the size of `G` is finite, it means that at a certain point we'll get `x^a = x^b` for some integers `a` and `b`. This means that `x^(a-b) = 1` (within Group `G` and its operation), and that means that there's some power of x `c` such that `x^c = 1`.  
+The lowest integer (excluding `0`) that maps `x^c` to `1` is called `the order of G` and marked as `c = ord(G)`.  
+Well, the order of a Group always divides the Group size, which means `x^n = x^(cm) = (x^c)^m = 1` for some integer `m`.  
+To conclude, for every Group `G` with `k` elements, if `a = b (mod k)` then `x^a = x^b`. In our case:
 - `k` is really `phi(n)`.
 - `ed = 1 (mod k` (because that's how we chose `d`).
 - Therefore, `(x^e)^d = x^(ed) = x^1 = x`.
