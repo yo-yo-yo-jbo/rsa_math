@@ -22,6 +22,16 @@ The important part is that `Asymmetric encryption` could be used for key-exchang
 Of course, the main challenge is - how to create such a cryptosystem? Well, using math.
 
 ## The algorithm
-RSA works within the multipicative [group](https://en.wikipedia.org/wiki/Group_(mathematics)) `mod n`, which contains all the [Coprimes](https://en.wikipedia.org/wiki/Coprime_integers) to `n`, with a multipication operation `mod n`.  
+RSA works within the multipicative [group](https://en.wikipedia.org/wiki/Group_(mathematics)) `mod n`, which contains all the [coprimes](https://en.wikipedia.org/wiki/Coprime_integers) to `n`, with a multipication operation `mod n`.  
 If you don't know what those are then I refer you to my previous blogposts, and specifically [modular arithmetics](https://github.com/yo-yo-yo-jbo/crypto_modular/) which we will be using a lot today.  
-Well, how does the algorithm work?
+Well, how does the algorithm work? Let us first describe the algorithm before explaining how it works:
+
+1. `Alice` creates two random large primes, `p` and `q` (how to create a "random" prime? I will discuss that in a later blogpost), and defines `n = p*q`.
+2. `Alice` uses a number that we'll call `e` (that is not *the* [e](https://en.wikipedia.org/wiki/E_(mathematical_constant)), remember, we are working with integers `mod n`!). In reality, `e` is really constant and "baked into" the cryptosystem (commonly `65537`, I will explain why later).
+3. `Alice` calculates a number `d` such that `d` is the multipicative inverse of `e` mod `phi(n)`, where `phi` is the [Euler Totient Function](https://en.wikipedia.org/wiki/Euler%27s_totient_function). Alice could calculate `phi(n)` directly: `phi(n) = (p-1)(q-1)`.
+4. `Alice` publishes her `public key = (e, n)` and keeps her `private key = (d, n)`, and gets rid of `p` and `q`.
+5. At this point, for every `x` in the multipicative group `mod n`, the following is true: `(x^d)^e = (x^e)^d = x (mod n)`, where `^` is exponentiation.
+6. When `Bob` wants to use `Alice`'s `public key` to encrypt such a value `x`, all he does is send `x^e (mod n)`.
+7. Alice can then decrypt `Bob`'s message by raising it to the `d`-th power (`mod n`), thus getting `x` back.
+
+This sounds rather complicated but is actually quite simple. Let us explain how values are picked.
